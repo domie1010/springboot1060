@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FanzhashipinCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fanzhashipin_id as fanzhashipinId
+        ,a.yonghu_id as yonghuId
+        ,a.fanzhashipin_collection_types as fanzhashipinCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FanzhashipinCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,fanzhashipin.fanzhashipin_name as fanzhashipinName
+        ,fanzhashipin.fanzhashipin_types as fanzhashipinTypes
+        ,fanzhashipin.fanzhashipin_photo as fanzhashipinPhoto
+        ,fanzhashipin.fanzhashipin_video as fanzhashipinVideo
+        ,fanzhashipin.zan_number as zanNumber
+        ,fanzhashipin.cai_number as caiNumber
+        ,fanzhashipin.fanzhashipin_content as fanzhashipinContent
+        ,fanzhashipin.fanzhashipin_delete as fanzhashipinDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM fanzhashipin_collection  a
+        left JOIN fanzhashipin fanzhashipin ON a.fanzhashipin_id = fanzhashipin.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.fanzhashipinId != null and params.fanzhashipinId != ''">
+                and a.fanzhashipin_id = #{params.fanzhashipinId}
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.fanzhashipinCollectionTypes != null and params.fanzhashipinCollectionTypes != ''">
+                and a.fanzhashipin_collection_types = #{params.fanzhashipinCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断反诈视频的id不为空 -->
+            <if test=" params.fanzhashipinIdNotNull != '' and params.fanzhashipinIdNotNull != null and params.fanzhashipinIdNotNull != 'null' ">
+                and a.fanzhashipin_id IS NOT NULL
+            </if>
+            <if test=" params.fanzhashipinName != '' and params.fanzhashipinName != null and params.fanzhashipinName != 'null' ">
+                and fanzhashipin.fanzhashipin_name like CONCAT('%',#{params.fanzhashipinName},'%')
+            </if>
+            <if test="params.fanzhashipinTypes != null  and params.fanzhashipinTypes != ''">
+                and fanzhashipin.fanzhashipin_types = #{params.fanzhashipinTypes}
+            </if>
+
+            <if test=" params.fanzhashipinVideo != '' and params.fanzhashipinVideo != null and params.fanzhashipinVideo != 'null' ">
+                and fanzhashipin.fanzhashipin_video like CONCAT('%',#{params.fanzhashipinVideo},'%')
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and fanzhashipin.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and fanzhashipin.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and fanzhashipin.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and fanzhashipin.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and fanzhashipin.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and fanzhashipin.cai_number = #{params.caiNumber}
+            </if>
+            <if test=" params.fanzhashipinContent != '' and params.fanzhashipinContent != null and params.fanzhashipinContent != 'null' ">
+                and fanzhashipin.fanzhashipin_content like CONCAT('%',#{params.fanzhashipinContent},'%')
+            </if>
+            <if test="params.fanzhashipinDeleteStart != null  and params.fanzhashipinDeleteStart != '' ">
+                <![CDATA[  and fanzhashipin.fanzhashipin_delete >= #{params.fanzhashipinDeleteStart}   ]]>
+            </if>
+            <if test="params.fanzhashipinDeleteEnd != null  and params.fanzhashipinDeleteEnd != '' ">
+                <![CDATA[  and fanzhashipin.fanzhashipin_delete <= #{params.fanzhashipinDeleteEnd}   ]]>
+            </if>
+            <if test="params.fanzhashipinDelete != null  and params.fanzhashipinDelete != '' ">
+                and fanzhashipin.fanzhashipin_delete = #{params.fanzhashipinDelete}
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
